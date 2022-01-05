@@ -8,9 +8,6 @@
   apt:
     pkg:
       - fish
-- name: touch ~/.hushlogin
-  shell: "touch ~/.hushlogin"
-  become: no
 - name: edit ~/.config/fish/config.fish
   become: no
   blockinfile:

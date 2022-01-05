@@ -56,7 +56,7 @@
         marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
         content: |
           export PATH="$HOME/.anyenv/bin:$PATH"
-          eval "$(anyenv init -)"
+          eval "$(anyenv init - bash)"
     - name: "anyenv install --init"
       shell: "~/.anyenv/bin/anyenv install --force-init"
       become: no
