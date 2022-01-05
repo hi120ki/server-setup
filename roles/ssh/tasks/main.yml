@@ -1,0 +1,53 @@
+- name: check ssh key
+  stat:
+    path: ~/.ssh/id_ed25519
+  register: sshkey_file
+  become: no
+- block:
+  - name: ssh-keygen
+    shell: "ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 1>/dev/null"
+    become: no
+  - name: read id_ed25519.pub
+    shell: "cat ~/.ssh/id_ed25519.pub"
+    register: id_ed25519_pub
+    become: no
+  - name: show id_ed25519.pub
+    debug:
+      msg: "{{ id_ed25519_pub.stdout }}"
+  - name: Download GitHub public key
+    uri:
+      url: https://github.com/hi120ki.keys
+      return_content: yes
+    register: keys
+  - name: add GitHub public key
+    shell: "echo '{{ keys.content }}' >> ~/.ssh/authorized_keys"
+    become: no
+  when:
+    - not sshkey_file.stat.exists
+- name: edit ~/.ssh/config
+  become: no
+  blockinfile:
+    dest: ~/.ssh/config
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK ssh"
+    content: |
+      Host *
+        ServerAliveInterval 60
+        TCPKeepAlive yes
+        IPQoS 0
+        StrictHostKeyChecking no
+        UserKnownHostsFile=/dev/null
+
+      Host github.com
+        AddKeysToAgent yes
+        HostName github.com
+        IdentityFile ~/.ssh/id_ed25519
+        User git
+- name: edit /etc/ssh/sshd_config
+  blockinfile:
+    dest: /etc/ssh/sshd_config
+    marker: "# {mark} ANSIBLE MANAGED BLOCK ssh"
+    content: |
+      PermitRootLogin yes
+      PubkeyAuthentication yes
+      PasswordAuthentication no
