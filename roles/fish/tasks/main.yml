@@ -84,8 +84,6 @@
       # ======================================================================== #
 
       alias vm 'cd ~/vm'
-      alias ctf 'cd ~/vm/ctf ; vstat'
-      alias tes 'cd ~/vm/test ; vstat'
 
       alias ] 'cd ../'
       alias rmr 'rm -rf'
@@ -120,3 +118,11 @@
   become: no
   args:
     executable: /usr/bin/fish
+- name: define whoami
+  shell: whoami
+  become: no
+  register: whoami
+- name: chsh -s /usr/bin/fish
+  user:
+    name: "{{ whoami.stdout }}"
+    shell: /usr/bin/fish
