@@ -67,7 +67,7 @@
       shell: "~/.anyenv/bin/anyenv install pyenv"
       become: no
     - name: "install node16"
-      shell: "source ~/.zshrc ; nodenv install 16.13.1"
+      shell: "source ~/.zshrc ; nodenv install 16.13.1 ; nodenv global 16.13.1"
       become: no
       args:
         executable: /usr/bin/zsh
@@ -78,3 +78,8 @@
         executable: /usr/bin/zsh
   when:
     - not check_anyenv.stat.exists
+- name: "npm install"
+  shell: "source ~/.zshrc ; nodenv shell 16.13.1 ; npm i -g npm ; npm i -g prettier zx forever"
+  become: no
+  args:
+    executable: /usr/bin/zsh
