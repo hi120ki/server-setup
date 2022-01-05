@@ -49,33 +49,25 @@
       end
 
       # https://github.com/sharkdp/bat
-      if command -sq bat
-        # bat --list-themes
-        alias c 'bat --theme="OneHalfDark"'
-      else
-        alias c 'cat'
-      end
+      # bat --list-themes
+      alias c 'bat --theme="OneHalfDark"'
 
       # https://github.com/BurntSushi/ripgrep
-      if command -sq rg
-        alias gr 'rg'
-        alias grl 'rg -l'
-      end
+      alias gr 'rg'
+      alias grl 'rg -l'
 
       # https://github.com/sharkdp/fd
-      if command -sq fd
-        alias f 'fd'
-        alias rmds 'fd -IH ".DS_Store" | xargs rm'
-        alias cleanc 'fd ".*.c" | xargs clang-format -style=Google -i'
-        alias cleanmd 'fd ".*.md" | xargs prettier --write'
-        alias cleanjson 'fd ".*.json" | xargs prettier --write'
-        alias cleanyml 'fd ".*.yml" | xargs prettier --write'
-        alias cleancss 'fd ".*.css" -E ".*min.css" | xargs prettier --write'
-        alias cleanjs 'fd ".*.js" -E ".*min.js" | xargs prettier --write'
-        alias cleanpy 'fd ".*.py" | xargs black'
-        alias cleansh 'fd ".*.sh" | xargs shfmt -i 2 -w'
-        alias cleanhtml 'fd ".*.html" -E ".*min.html" | xargs js-beautify -I -r -n -s 2 --no-preserve-newlines'
-      end
+      alias f 'fd'
+      alias rmds 'fd -IH ".DS_Store" | xargs rm'
+      alias cleanc 'fd ".*.c" | xargs clang-format -style=Google -i'
+      alias cleanmd 'fd ".*.md" | xargs prettier --write'
+      alias cleanjson 'fd ".*.json" | xargs prettier --write'
+      alias cleanyml 'fd ".*.yml" | xargs prettier --write'
+      alias cleancss 'fd ".*.css" -E ".*min.css" | xargs prettier --write'
+      alias cleanjs 'fd ".*.js" -E ".*min.js" | xargs prettier --write'
+      alias cleanpy 'fd ".*.py" | xargs black'
+      alias cleansh 'fd ".*.sh" | xargs shfmt -i 2 -w'
+      alias cleanhtml 'fd ".*.html" -E ".*min.html" | xargs js-beautify -I -r -n -s 2 --no-preserve-newlines'
 
       # ======================================================================== #
       # Shorthand command
