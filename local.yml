@@ -2,6 +2,8 @@
   become: yes
   roles:
     - apt
+    - git
+    - ssh
     - fish
     - anyenv
     - rust
