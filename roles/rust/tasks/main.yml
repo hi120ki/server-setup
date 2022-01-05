@@ -1,0 +1,47 @@
+- name: download rustup
+  become: no
+  uri:
+    url: https://sh.rustup.rs
+    return_content: yes
+  register: rustup
+- name: run rustup
+  become: no
+  shell:
+    cmd: sh -s -- -y
+    stdin: "{{ rustup.content }}"
+- name: add PATH ~/.zshrc
+  become: no
+  blockinfile:
+    dest: ~/.zshrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK rust"
+    content: |
+      export PATH="$HOME/.cargo/bin:$PATH"
+- name: add PATH ~/.config/fish/config.fish
+  become: no
+  blockinfile:
+    dest: ~/.config/fish/config.fish
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK rust"
+    content: |
+      set -x PATH ~/.cargo/bin $PATH
+- name: add PATH ~/.bashrc
+  become: no
+  blockinfile:
+    dest: ~/.bashrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK rust"
+    content: |
+      export PATH="$HOME/.cargo/bin:$PATH"
+- name: install exa
+  become: no
+  shell: ~/.cargo/bin/cargo install exa
+- name: install fd-find
+  become: no
+  shell: ~/.cargo/bin/cargo install fd-find
+- name: install ripgrep
+  become: no
+  shell: ~/.cargo/bin/cargo install ripgrep
+- name: install bat
+  become: no
+  shell: ~/.cargo/bin/cargo install bat

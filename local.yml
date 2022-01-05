@@ -1,0 +1,9 @@
+- hosts: localhost
+  become: yes
+  roles:
+    - apt
+    - fish
+    - anyenv
+    - rust
+    - netdata
+    - vm

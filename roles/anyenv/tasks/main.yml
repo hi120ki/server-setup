@@ -1,0 +1,80 @@
+- name: check anyenv installed
+  stat:
+    path: ~/.anyenv
+  register: check_anyenv
+  become: no
+- block:
+    - name: apt update
+      apt:
+        update_cache: yes
+    - name: "apt-get install pyenv lib"
+      apt:
+        pkg:
+          - make
+          - build-essential
+          - libssl-dev
+          - zlib1g-dev
+          - libbz2-dev
+          - libreadline-dev
+          - libsqlite3-dev
+          - wget
+          - curl
+          - llvm
+          - libncursesw5-dev
+          - xz-utils
+          - tk-dev
+          - libxml2-dev
+          - libxmlsec1-dev
+          - libffi-dev
+          - liblzma-dev
+    - name: "git clone anyenv"
+      shell: "git clone https://github.com/anyenv/anyenv ~/.anyenv"
+      become: no
+    - name: add PATH ~/.zshrc
+      become: no
+      blockinfile:
+        dest: ~/.zshrc
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
+        content: |
+          export PATH="$HOME/.anyenv/bin:$PATH"
+          eval "$(anyenv init - zsh)"
+    - name: add PATH ~/.config/fish/config.fish
+      become: no
+      blockinfile:
+        dest: ~/.config/fish/config.fish
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
+        content: |
+          set -x PATH ~/.anyenv/bin $PATH
+          anyenv init - | source
+    - name: add PATH ~/.bashrc
+      become: no
+      blockinfile:
+        dest: ~/.bashrc
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
+        content: |
+          export PATH="$HOME/.anyenv/bin:$PATH"
+          eval "$(anyenv init -)"
+    - name: "anyenv install --init"
+      shell: "~/.anyenv/bin/anyenv install --force-init"
+      become: no
+    - name: "anyenv install nodenv"
+      shell: "~/.anyenv/bin/anyenv install nodenv"
+      become: no
+    - name: "anyenv install pyenv"
+      shell: "~/.anyenv/bin/anyenv install pyenv"
+      become: no
+    - name: "install node16"
+      shell: "source ~/.zshrc ; nodenv install 16.13.1"
+      become: no
+      args:
+        executable: /usr/bin/zsh
+    - name: "install python3"
+      shell: "source ~/.zshrc ; pyenv install 3.8.12"
+      become: no
+      args:
+        executable: /usr/bin/zsh
+  when:
+    - not check_anyenv.stat.exists
