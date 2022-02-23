@@ -11,3 +11,5 @@
   shell: systemctl enable netdata
 - name: systemctl start netdata
   shell: systemctl start netdata
+- name: open netdata
+  shell: sed -i.bk -e 's/bind to = localhost/bind to = 0.0.0.0/g' /etc/netdata/netdata.conf
