@@ -9,3 +9,18 @@
     pkg:
       - apt-transport-https
       - zsh
+      - zip
+      - unzip
+      - jq
+      - make
+      - nano
+      - git
+      - curl
+      - wget
+      - netcat
+      - iputils-ping
+      - p7zip-full
+- name: snap install package
+  shell: "snap install {{ item }}"
+  with_items:
+    - httpie
