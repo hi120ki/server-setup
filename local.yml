@@ -1,11 +1,11 @@
 - hosts: localhost
   become: yes
   roles:
-    # - apt
-    # - git
+    - apt
+    - git
     - ssh
-    # - fish
-    # - anyenv
-    # - rust
-    # - netdata
-    # - vm
+    - fish
+    - anyenv
+    - rust
+    - netdata
+    - vm

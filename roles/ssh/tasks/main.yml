@@ -4,16 +4,16 @@
   register: sshkey_file
   become: no
 - block:
-  - name: ssh-keygen
-    shell: "ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 1>/dev/null"
-    become: no
-  - name: read id_ed25519.pub
-    shell: "cat ~/.ssh/id_ed25519.pub"
-    register: id_ed25519_pub
-    become: no
-  - name: show id_ed25519.pub
-    debug:
-      msg: "{{ id_ed25519_pub.stdout }}"
+    - name: ssh-keygen
+      shell: "ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 1>/dev/null"
+      become: no
+    - name: read id_ed25519.pub
+      shell: "cat ~/.ssh/id_ed25519.pub"
+      register: id_ed25519_pub
+      become: no
+    - name: show id_ed25519.pub
+      debug:
+        msg: "{{ id_ed25519_pub.stdout }}"
   when:
     - not sshkey_file.stat.exists
 - name: Download GitHub public key
