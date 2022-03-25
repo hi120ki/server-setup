@@ -1,3 +1,5 @@
+- name: change mirror
+  shell: sed -i.bk -e 's/jp.archive.ubuntu.com/ftp.riken.jp\/Linux/g' /etc/apt/sources.list
 - name: apt update
   apt:
     update_cache: yes
