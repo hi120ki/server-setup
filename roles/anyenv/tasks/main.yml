@@ -73,6 +73,24 @@
   when:
     - not check_anyenv_install.stat.exists
 
+- name: check anyenv_update installed
+  stat:
+    path: ~/.anyenv/plugins/anyenv-update
+  register: check_anyenv_update
+  become: no
+- block:
+    - name: mkdir -p ~/.anyenv/plugins
+      shell: mkdir -p ~/.anyenv/plugins
+      become: no
+    - name: git clone anyenv-update
+      shell: git clone https://github.com/znz/anyenv-update.git ~/.anyenv/plugins/anyenv-update
+      become: no
+  when:
+    - not check_anyenv_update.stat.exists
+- name: anyenv update
+  shell: ~/.anyenv/bin/anyenv update
+  become: no
+
 - name: check pyenv installed
   stat:
     path: ~/.anyenv/envs/pyenv
