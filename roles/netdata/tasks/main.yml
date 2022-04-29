@@ -1,13 +1,21 @@
-- name: download netdata
-  uri:
-    url: https://my-netdata.io/kickstart.sh
-    return_content: yes
-  register: netdata
-- name: install netdata
-  shell:
-    cmd: bash -s -- --non-interactive
-    stdin: "{{ netdata.content }}"
-- name: systemctl enable netdata
-  shell: systemctl enable netdata
-- name: systemctl start netdata
-  shell: systemctl start netdata
+- name: check netdata installed
+  stat:
+    path: /usr/sbin/netdata
+  register: check_netdata
+  become: no
+- block:
+    - name: download netdata
+      uri:
+        url: https://my-netdata.io/kickstart.sh
+        return_content: yes
+      register: netdata
+    - name: install netdata
+      shell:
+        cmd: bash -s -- --non-interactive
+        stdin: "{{ netdata.content }}"
+    - name: systemctl enable netdata
+      shell: systemctl enable netdata
+    - name: systemctl start netdata
+      shell: systemctl start netdata
+  when:
+    - not check_netdata.stat.exists

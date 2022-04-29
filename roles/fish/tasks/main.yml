@@ -1,13 +1,21 @@
-- name: ppa:fish-shell
-  ansible.builtin.apt_repository:
-    repo: ppa:fish-shell/release-3
-- name: apt update
-  apt:
-    update_cache: yes
-- name: "apt install fish"
-  apt:
-    pkg:
-      - fish
+- name: check fish installed
+  stat:
+    path: /usr/bin/fish
+  register: check_fish
+  become: no
+- block:
+    - name: ppa:fish-shell
+      ansible.builtin.apt_repository:
+        repo: ppa:fish-shell/release-3
+    - name: apt update
+      apt:
+        update_cache: yes
+    - name: "apt install fish"
+      apt:
+        pkg:
+          - fish
+  when:
+    - not check_fish.stat.exists
 - name: edit ~/.config/fish/config.fish
   become: no
   blockinfile:

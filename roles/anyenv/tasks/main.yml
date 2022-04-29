@@ -27,59 +27,168 @@
           - libxmlsec1-dev
           - libffi-dev
           - liblzma-dev
-    - name: "git clone anyenv"
-      shell: "git clone https://github.com/anyenv/anyenv ~/.anyenv"
+    - name: git clone anyenv
+      shell: git clone https://github.com/anyenv/anyenv ~/.anyenv
       become: no
-    - name: add PATH ~/.zshrc
+  when:
+    - not check_anyenv.stat.exists
+
+- name: add PATH ~/.zshrc
+  become: no
+  blockinfile:
+    dest: ~/.zshrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
+    content: |
+      export PATH="$HOME/.anyenv/bin:$PATH"
+      eval "$(anyenv init - zsh)"
+- name: add PATH ~/.config/fish/config.fish
+  become: no
+  blockinfile:
+    dest: ~/.config/fish/config.fish
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
+    content: |
+      set -x PATH ~/.anyenv/bin $PATH
+      anyenv init - | source
+- name: add PATH ~/.bashrc
+  become: no
+  blockinfile:
+    dest: ~/.bashrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
+    content: |
+      export PATH="$HOME/.anyenv/bin:$PATH"
+      eval "$(anyenv init - bash)"
+
+- name: check anyenv_install installed
+  stat:
+    path: ~/.config/anyenv
+  register: check_anyenv_install
+  become: no
+- block:
+    - name: anyenv install --init
+      shell: ~/.anyenv/bin/anyenv install --force-init
       become: no
-      blockinfile:
-        dest: ~/.zshrc
-        create: true
-        marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
-        content: |
-          export PATH="$HOME/.anyenv/bin:$PATH"
-          eval "$(anyenv init - zsh)"
-    - name: add PATH ~/.config/fish/config.fish
+  when:
+    - not check_anyenv_install.stat.exists
+
+- name: check pyenv installed
+  stat:
+    path: ~/.anyenv/envs/pyenv
+  register: check_pyenv
+  become: no
+- block:
+    - name: anyenv install pyenv
+      shell: ~/.anyenv/bin/anyenv install pyenv
       become: no
-      blockinfile:
-        dest: ~/.config/fish/config.fish
-        create: true
-        marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
-        content: |
-          set -x PATH ~/.anyenv/bin $PATH
-          anyenv init - | source
-    - name: add PATH ~/.bashrc
-      become: no
-      blockinfile:
-        dest: ~/.bashrc
-        create: true
-        marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
-        content: |
-          export PATH="$HOME/.anyenv/bin:$PATH"
-          eval "$(anyenv init - bash)"
-    - name: "anyenv install --init"
-      shell: "~/.anyenv/bin/anyenv install --force-init"
-      become: no
-    - name: "anyenv install nodenv"
-      shell: "~/.anyenv/bin/anyenv install nodenv"
-      become: no
-    - name: "anyenv install pyenv"
-      shell: "~/.anyenv/bin/anyenv install pyenv"
-      become: no
-    - name: "install node16"
-      shell: "source ~/.zshrc ; nodenv install 16.13.1 ; nodenv global 16.13.1"
-      become: no
-      args:
-        executable: /usr/bin/zsh
-    - name: "install python3"
-      shell: "source ~/.zshrc ; pyenv install 3.8.12"
+  when:
+    - not check_pyenv.stat.exists
+- name: check python3 installed
+  stat:
+    path: ~/.anyenv/envs/pyenv/versions/3.8.13
+  register: check_python3
+  become: no
+- block:
+    - name: install python3
+      shell: source ~/.zshrc ; pyenv install 3.8.13
       become: no
       args:
         executable: /usr/bin/zsh
   when:
-    - not check_anyenv.stat.exists
-- name: "npm install"
-  shell: "source ~/.zshrc ; nodenv shell 16.13.1 ; npm i -g npm ; npm i -g prettier zx forever"
+    - not check_python3.stat.exists
+- name: pip install
+  shell: source ~/.zshrc ; pyenv shell 3.8.13 ; pip install -U pip
   become: no
   args:
     executable: /usr/bin/zsh
+- name: edit ~/.bashrc
+  become: no
+  blockinfile:
+    dest: ~/.bashrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK python"
+    content: |
+      alias pipinit='pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
+      alias pipreq='pip install -r requirements.txt'
+      alias venv='source venv/bin/activate.fish'
+      alias venvinit='rm -rf venv ; python -m venv venv'
+      alias venvsetup='venvinit ; venv ; pip install -U pip ; pipreq'
+- name: edit ~/.zshrc
+  become: no
+  blockinfile:
+    dest: ~/.zshrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK python"
+    content: |
+      alias pipinit='pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
+      alias pipreq='pip install -r requirements.txt'
+      alias venv='source venv/bin/activate.fish'
+      alias venvinit='rm -rf venv ; python -m venv venv'
+      alias venvsetup='venvinit ; venv ; pip install -U pip ; pipreq'
+- name: edit ~/.config/fish/config.fish
+  become: no
+  blockinfile:
+    dest: ~/.config/fish/config.fish
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK python"
+    content: |
+      alias pipinit 'pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
+      alias pipreq 'pip install -r requirements.txt'
+      alias venv 'source venv/bin/activate.fish'
+      alias venvinit 'rm -rf venv ; python -m venv venv'
+      alias venvsetup 'venvinit ; venv ; pip install -U pip ; pipreq'
+
+- name: check nodenv installed
+  stat:
+    path: ~/.anyenv/envs/nodenv
+  register: check_nodenv
+  become: no
+- block:
+    - name: anyenv install nodenv
+      shell: ~/.anyenv/bin/anyenv install nodenv
+      become: no
+  when:
+    - not check_nodenv.stat.exists
+- name: check node16 installed
+  stat:
+    path: ~/.anyenv/envs/nodenv/versions/16.15.0
+  register: check_node16
+  become: no
+- block:
+    - name: install node16
+      shell: source ~/.zshrc ; nodenv install 16.15.0 ; nodenv global 16.15.0
+      become: no
+      args:
+        executable: /usr/bin/zsh
+  when:
+    - not check_node16.stat.exists
+- name: npm install
+  shell: source ~/.zshrc ; nodenv shell 16.15.0 ; npm i -g npm ; npm i -g yarn prettier zx
+  become: no
+  args:
+    executable: /usr/bin/zsh
+- name: edit ~/.bashrc
+  become: no
+  blockinfile:
+    dest: ~/.bashrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
+    content: |
+      alias nup='npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
+- name: edit ~/.zshrc
+  become: no
+  blockinfile:
+    dest: ~/.zshrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
+    content: |
+      alias nup='npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
+- name: edit ~/.config/fish/config.fish
+  become: no
+  blockinfile:
+    dest: ~/.config/fish/config.fish
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
+    content: |
+      alias nup 'npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'

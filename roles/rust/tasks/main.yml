@@ -1,14 +1,28 @@
-- name: download rustup
+- name: check rustup installed
+  stat:
+    path: ~/.cargo
+  register: check_rustup
   become: no
-  uri:
-    url: https://sh.rustup.rs
-    return_content: yes
-  register: rustup
-- name: run rustup
+- block:
+    - name: download rustup
+      become: no
+      uri:
+        url: https://sh.rustup.rs
+        return_content: yes
+      register: rustup
+    - name: run rustup
+      become: no
+      shell:
+        cmd: sh -s -- -y
+        stdin: "{{ rustup.content }}"
+  when:
+    - not check_rustup.stat.exists
+- name: rustup self update
   become: no
-  shell:
-    cmd: sh -s -- -y
-    stdin: "{{ rustup.content }}"
+  shell: ~/.cargo/bin/rustup self update
+- name: rustup update
+  become: no
+  shell: ~/.cargo/bin/rustup update
 - name: add PATH ~/.zshrc
   become: no
   blockinfile:
