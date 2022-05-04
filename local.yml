@@ -5,6 +5,7 @@
     - git
     - ssh
     - fish
+    - fzf
     - anyenv
     - rust
     - netdata

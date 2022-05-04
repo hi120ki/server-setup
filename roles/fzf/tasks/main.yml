@@ -1,0 +1,14 @@
+- name: check fzf cloned
+  stat:
+    path: ~/.fzf
+  register: check_fzf
+  become: no
+- block:
+    - name: git clone
+      shell: git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+      become: no
+    - name: install fzf
+      shell: bash ~/.fzf/install
+      become: no
+  when:
+    - not check_fzf.stat.exists
