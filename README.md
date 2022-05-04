@@ -12,7 +12,6 @@ make install
 
 ```
 sudo apt purge -y ansible ; sudo apt autoremove -y
-pyenv global 3.8.13
-python -m pip install --user pipx ; python -m pipx ensurepath ; exec $SHELL -l
+pyenv global 3.8.13 ; python -m pip install --user pipx ; python -m pipx ensurepath ; exec $SHELL -l
 pipx install ansible --include-deps
 ```
