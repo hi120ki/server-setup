@@ -91,122 +91,227 @@
   shell: ~/.anyenv/bin/anyenv update
   become: no
 
-- name: check pyenv installed
-  stat:
-    path: ~/.anyenv/envs/pyenv
-  register: check_pyenv
-  become: no
 - block:
-    - name: anyenv install pyenv
-      shell: ~/.anyenv/bin/anyenv install pyenv
+    - name: check pyenv installed
+      stat:
+        path: ~/.anyenv/envs/pyenv
+      register: check_pyenv
       become: no
-  when:
-    - not check_pyenv.stat.exists
-- name: check python3 installed
-  stat:
-    path: ~/.anyenv/envs/pyenv/versions/3.8.13
-  register: check_python3
-  become: no
-- block:
-    - name: install python3
-      shell: source ~/.zshrc ; pyenv install 3.8.13
+    - block:
+        - name: anyenv install pyenv
+          shell: ~/.anyenv/bin/anyenv install pyenv
+          become: no
+      when:
+        - not check_pyenv.stat.exists
+    - block:
+        - name: check python3 installed
+          stat:
+            path: ~/.anyenv/envs/pyenv/versions/{{ python3_version }}
+          register: check_python3
+          become: no
+        - block:
+            - name: install python3
+              shell: source ~/.zshrc ; pyenv install {{ python3_version }}
+              become: no
+              args:
+                executable: /usr/bin/zsh
+          when:
+            - not check_python3.stat.exists
+        - name: pip install
+          shell: source ~/.zshrc ; pyenv shell {{ python3_version }} ; pip install -U pip
+          become: no
+          args:
+            executable: /usr/bin/zsh
+        - name: pip install libs
+          shell: source ~/.zshrc ; pyenv shell {{ python3_version }} ; pip install -U {{ item }}
+          become: no
+          args:
+            executable: /usr/bin/zsh
+          ignore_errors: True
+          with_items:
+            - "{{ python3_libs }}"
+      when:
+        - python3_install
+    - block:
+        - name: check python2 installed
+          stat:
+            path: ~/.anyenv/envs/pyenv/versions/{{ python2_version }}
+          register: check_python2
+          become: no
+        - block:
+            - name: install python2
+              shell: source ~/.zshrc ; pyenv install {{ python2_version }}
+              become: no
+              args:
+                executable: /usr/bin/zsh
+          when:
+            - not check_python2.stat.exists
+        - name: pip install
+          shell: source ~/.zshrc ; pyenv shell {{ python2_version }} ; pip install -U pip
+          become: no
+          args:
+            executable: /usr/bin/zsh
+        - name: pip install libs
+          shell: source ~/.zshrc ; pyenv shell {{ python2_version }} ; pip install -U {{ item }}
+          become: no
+          args:
+            executable: /usr/bin/zsh
+          ignore_errors: True
+          with_items:
+            - "{{ python2_libs }}"
+      when:
+        - python2_install
+    - name: pyenv global
+      shell: source ~/.zshrc ; pyenv global {{ python_global_version }}
       become: no
       args:
         executable: /usr/bin/zsh
+    - name: edit ~/.bashrc
+      become: no
+      blockinfile:
+        dest: ~/.bashrc
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK python"
+        content: |
+          alias pipinit='pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
+          alias pipreq='pip install -r requirements.txt'
+          alias venv='source venv/bin/activate.fish'
+          alias venvinit='rm -rf venv ; python -m venv venv'
+          alias venvsetup='venvinit ; venv ; pip install -U pip ; pipreq'
+    - name: edit ~/.zshrc
+      become: no
+      blockinfile:
+        dest: ~/.zshrc
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK python"
+        content: |
+          alias pipinit='pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
+          alias pipreq='pip install -r requirements.txt'
+          alias venv='source venv/bin/activate.fish'
+          alias venvinit='rm -rf venv ; python -m venv venv'
+          alias venvsetup='venvinit ; venv ; pip install -U pip ; pipreq'
+    - name: edit ~/.config/fish/config.fish
+      become: no
+      blockinfile:
+        dest: ~/.config/fish/config.fish
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK python"
+        content: |
+          alias pipinit 'pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
+          alias pipreq 'pip install -r requirements.txt'
+          alias venv 'source venv/bin/activate.fish'
+          alias venvinit 'rm -rf venv ; python -m venv venv'
+          alias venvsetup 'venvinit ; venv ; pip install -U pip ; pipreq'
   when:
-    - not check_python3.stat.exists
-- name: pip install
-  shell: source ~/.zshrc ; pyenv shell 3.8.13 ; pip install -U pip
-  become: no
-  args:
-    executable: /usr/bin/zsh
-- name: edit ~/.bashrc
-  become: no
-  blockinfile:
-    dest: ~/.bashrc
-    create: true
-    marker: "# {mark} ANSIBLE MANAGED BLOCK python"
-    content: |
-      alias pipinit='pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
-      alias pipreq='pip install -r requirements.txt'
-      alias venv='source venv/bin/activate.fish'
-      alias venvinit='rm -rf venv ; python -m venv venv'
-      alias venvsetup='venvinit ; venv ; pip install -U pip ; pipreq'
-- name: edit ~/.zshrc
-  become: no
-  blockinfile:
-    dest: ~/.zshrc
-    create: true
-    marker: "# {mark} ANSIBLE MANAGED BLOCK python"
-    content: |
-      alias pipinit='pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
-      alias pipreq='pip install -r requirements.txt'
-      alias venv='source venv/bin/activate.fish'
-      alias venvinit='rm -rf venv ; python -m venv venv'
-      alias venvsetup='venvinit ; venv ; pip install -U pip ; pipreq'
-- name: edit ~/.config/fish/config.fish
-  become: no
-  blockinfile:
-    dest: ~/.config/fish/config.fish
-    create: true
-    marker: "# {mark} ANSIBLE MANAGED BLOCK python"
-    content: |
-      alias pipinit 'pip install -U pip ; pip install -U pipdeptree black pycryptodome requests numpy sympy scipy gmpy2 matplotlib bandit'
-      alias pipreq 'pip install -r requirements.txt'
-      alias venv 'source venv/bin/activate.fish'
-      alias venvinit 'rm -rf venv ; python -m venv venv'
-      alias venvsetup 'venvinit ; venv ; pip install -U pip ; pipreq'
+    - python_install
 
-- name: check nodenv installed
-  stat:
-    path: ~/.anyenv/envs/nodenv
-  register: check_nodenv
-  become: no
 - block:
-    - name: anyenv install nodenv
-      shell: ~/.anyenv/bin/anyenv install nodenv
+    - name: check nodenv installed
+      stat:
+        path: ~/.anyenv/envs/nodenv
+      register: check_nodenv
       become: no
+    - block:
+        - name: anyenv install nodenv
+          shell: ~/.anyenv/bin/anyenv install nodenv
+          become: no
+      when:
+        - not check_nodenv.stat.exists
+    - name: check nodejs installed
+      stat:
+        path: ~/.anyenv/envs/nodenv/versions/{{ nodejs_version }}
+      register: check_nodejs
+      become: no
+    - block:
+        - name: install nodejs
+          shell: source ~/.zshrc ; nodenv install {{ nodejs_version }}
+          become: no
+          args:
+            executable: /usr/bin/zsh
+      when:
+        - not check_nodejs.stat.exists
+    - name: npm install
+      shell: source ~/.zshrc ; nodenv shell {{ nodejs_version }} ; npm i -g npm yarn
+      become: no
+      args:
+        executable: /usr/bin/zsh
+    - name: npm install libs
+      shell: source ~/.zshrc ; nodenv shell {{ nodejs_version }} ; npm i -g {{ item }}
+      become: no
+      args:
+        executable: /usr/bin/zsh
+      ignore_errors: True
+      with_items:
+        - "{{ nodejs_libs }}"
+    - name: nodenv global
+      shell: source ~/.zshrc ; nodenv global {{ nodejs_global_version }}
+      become: no
+      args:
+        executable: /usr/bin/zsh
+    - name: edit ~/.bashrc
+      become: no
+      blockinfile:
+        dest: ~/.bashrc
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
+        content: |
+          alias nup='npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
+    - name: edit ~/.zshrc
+      become: no
+      blockinfile:
+        dest: ~/.zshrc
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
+        content: |
+          alias nup='npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
+    - name: edit ~/.config/fish/config.fish
+      become: no
+      blockinfile:
+        dest: ~/.config/fish/config.fish
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
+        content: |
+          alias nup 'npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
   when:
-    - not check_nodenv.stat.exists
-- name: check node16 installed
-  stat:
-    path: ~/.anyenv/envs/nodenv/versions/16.15.0
-  register: check_node16
-  become: no
+    - nodejs_install
+
 - block:
-    - name: install node16
-      shell: source ~/.zshrc ; nodenv install 16.15.0 ; nodenv global 16.15.0
+    - name: check goenv installed
+      stat:
+        path: ~/.anyenv/envs/goenv
+      register: check_goenv
+      become: no
+    - block:
+        - name: anyenv install goenv
+          shell: ~/.anyenv/bin/anyenv install goenv
+          become: no
+      when:
+        - not check_goenv.stat.exists
+    - name: check go installed
+      stat:
+        path: ~/.anyenv/envs/goenv/versions/{{ golang_version }}
+      register: check_go
+      become: no
+    - block:
+        - name: install go
+          shell: source ~/.zshrc ; goenv install {{ golang_version }}
+          become: no
+          args:
+            executable: /usr/bin/zsh
+      when:
+        - not check_go.stat.exists
+    - name: go install libs
+      shell: source ~/.zshrc ; goenv shell {{ golang_version }} ; go install {{ item }}
+      become: no
+      args:
+        executable: /usr/bin/zsh
+      ignore_errors: True
+      with_items:
+        - "{{ golang_libs }}"
+    - name: goenv global
+      shell: source ~/.zshrc ; goenv global {{ golang_global_version }}
       become: no
       args:
         executable: /usr/bin/zsh
   when:
-    - not check_node16.stat.exists
-- name: npm install
-  shell: source ~/.zshrc ; nodenv shell 16.15.0 ; npm i -g npm ; npm i -g yarn prettier zx
-  become: no
-  args:
-    executable: /usr/bin/zsh
-- name: edit ~/.bashrc
-  become: no
-  blockinfile:
-    dest: ~/.bashrc
-    create: true
-    marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
-    content: |
-      alias nup='npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
-- name: edit ~/.zshrc
-  become: no
-  blockinfile:
-    dest: ~/.zshrc
-    create: true
-    marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
-    content: |
-      alias nup='npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
-- name: edit ~/.config/fish/config.fish
-  become: no
-  blockinfile:
-    dest: ~/.config/fish/config.fish
-    create: true
-    marker: "# {mark} ANSIBLE MANAGED BLOCK nodejs"
-    content: |
-      alias nup 'npm i -g npm yarn ; npm update -g ; yarn global upgrade ; npm cache verify ; yarn cache clean'
+    - golang_install
