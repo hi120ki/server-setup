@@ -14,5 +14,5 @@ make install
 sudo apt purge -y ansible ; sudo apt autoremove -y
 pyenv global 3.8.13 ; python -m pip install --user pipx ; python -m pipx ensurepath ; exec $SHELL -l
 pipx install ansible --include-deps
-echo 'export PATH="~/.local/bin:$PATH"' >> ~/.bashrc ; echo 'export PATH="~/.local/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc ; echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ```

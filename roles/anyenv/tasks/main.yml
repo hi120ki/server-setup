@@ -40,7 +40,7 @@
     create: true
     marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
     content: |
-      export PATH="~/.anyenv/bin:$PATH"
+      export PATH="$HOME/.anyenv/bin:$PATH"
       eval "$(anyenv init - zsh)"
 - name: add PATH ~/.config/fish/config.fish
   become: no
@@ -58,7 +58,7 @@
     create: true
     marker: "# {mark} ANSIBLE MANAGED BLOCK anyenv"
     content: |
-      export PATH="~/.anyenv/bin:$PATH"
+      export PATH="$HOME/.anyenv/bin:$PATH"
       eval "$(anyenv init - bash)"
 
 - name: check anyenv_install installed

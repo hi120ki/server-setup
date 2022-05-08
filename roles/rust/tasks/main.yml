@@ -30,7 +30,7 @@
     create: true
     marker: "# {mark} ANSIBLE MANAGED BLOCK rust"
     content: |
-      export PATH="~/.cargo/bin:$PATH"
+      export PATH="$HOME/.cargo/bin:$PATH"
 - name: add PATH ~/.config/fish/config.fish
   become: no
   blockinfile:
@@ -46,7 +46,7 @@
     create: true
     marker: "# {mark} ANSIBLE MANAGED BLOCK rust"
     content: |
-      export PATH="~/.cargo/bin:$PATH"
+      export PATH="$HOME/.cargo/bin:$PATH"
 - name: install exa
   become: no
   shell: ~/.cargo/bin/cargo install exa
