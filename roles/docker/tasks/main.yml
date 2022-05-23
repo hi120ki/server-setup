@@ -1,0 +1,155 @@
+- name: check docker installed
+  shell: "which docker"
+  register: check_docker
+  failed_when: check_docker.rc not in [0,1]
+- block:
+    - name: "install docker dependencies"
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+    - name: "add docker gpg key"
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: "define lsb_release"
+      shell: "lsb_release -cs"
+      ignore_errors: True
+      register: lsb_release
+    - name: "add docker repository"
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ lsb_release.stdout }} stable"
+        state: present
+    - name: "install docker"
+      apt:
+        name: "{{ packages }}"
+        update_cache: yes
+      vars:
+        packages:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+    - name: "define uname-s"
+      shell: "uname -s"
+      ignore_errors: True
+      register: unames
+    - name: "define uname-m"
+      shell: "uname -m"
+      ignore_errors: True
+      register: unamem
+    - name: "install docker-compose"
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ unames.stdout }}-{{ unamem.stdout }}"
+        dest: /usr/local/bin/docker-compose
+        owner: root
+        group: root
+        mode: 0755
+    - name: "define whoami"
+      shell: "whoami"
+      become: no
+      ignore_errors: True
+      register: whoami
+    - name: "usermod docker"
+      shell: "usermod -aG docker {{ whoami.stdout}}"
+    - name: Restart docker service
+      systemd:
+        name: docker.service
+        state: restarted
+  when: check_docker.rc == 1
+- name: install lazydocker
+  unarchive:
+    src: https://github.com/jesseduffield/lazydocker/releases/download/v0.12/lazydocker_0.12_Linux_x86_64.tar.gz
+    dest: /usr/local/bin
+    extra_opts:
+      - lazydocker
+    remote_src: yes
+- name: edit ~/.bashrc
+  become: no
+  blockinfile:
+    dest: ~/.bashrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK docker"
+    content: |
+      # Docker
+      alias d='docker'
+      alias dps='docker ps'
+      alias dpsa='docker ps -a'
+      alias dsa='docker start'
+      alias dso='docker stop'
+      alias drm='docker rm'
+      alias drmi='docker rmi'
+      alias dex='docker exec -it'
+      alias di='docker images | sort -k6 -h'
+      alias dip='docker image prune -f'
+      alias dvp='docker volume prune -f'
+      # Docker Compose
+      alias dc='docker-compose'
+      alias dcb='docker-compose build'
+      alias dcu='docker-compose up'
+      alias dcup='docker-compose up -d'
+      alias dcso='docker-compose stop'
+      alias dcrm='docker-compose rm -f'
+      alias dcps='docker-compose ps'
+      alias dcex='docker-compose exec'
+- name: edit ~/.zshrc
+  become: no
+  blockinfile:
+    dest: ~/.zshrc
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK docker"
+    content: |
+      # Docker
+      alias d='docker'
+      alias dps='docker ps'
+      alias dpsa='docker ps -a'
+      alias dsa='docker start'
+      alias dso='docker stop'
+      alias drm='docker rm'
+      alias drmi='docker rmi'
+      alias dex='docker exec -it'
+      alias di='docker images | sort -k6 -h'
+      alias dip='docker image prune -f'
+      alias dvp='docker volume prune -f'
+      # Docker Compose
+      alias dc='docker-compose'
+      alias dcb='docker-compose build'
+      alias dcu='docker-compose up'
+      alias dcup='docker-compose up -d'
+      alias dcso='docker-compose stop'
+      alias dcrm='docker-compose rm -f'
+      alias dcps='docker-compose ps'
+      alias dcex='docker-compose exec'
+- name: edit ~/.config/fish/config.fish
+  become: no
+  blockinfile:
+    dest: ~/.config/fish/config.fish
+    create: true
+    marker: "# {mark} ANSIBLE MANAGED BLOCK docker"
+    content: |
+      # Docker
+      alias d 'docker'
+      alias dps 'docker ps'
+      alias dpsa 'docker ps -a'
+      alias dsa 'docker start'
+      alias dso 'docker stop'
+      alias drm 'docker rm'
+      alias drmi 'docker rmi'
+      alias dex 'docker exec -it'
+      alias di 'docker images | sort -k6 -h'
+      alias dip 'docker image prune -f'
+      alias dvp 'docker volume prune -f'
+      # Docker Compose
+      alias dc 'docker-compose'
+      alias dcb 'docker-compose build'
+      alias dcu 'docker-compose up'
+      alias dcup 'docker-compose up -d'
+      alias dcso 'docker-compose stop'
+      alias dcrm 'docker-compose rm -f'
+      alias dcps 'docker-compose ps'
+      alias dcex 'docker-compose exec'
