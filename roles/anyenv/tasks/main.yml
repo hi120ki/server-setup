@@ -118,15 +118,11 @@
           when:
             - not check_python3.stat.exists
         - name: pip install
-          shell: source ~/.zshrc ; pyenv shell {{ python3_version }} ; pip install -U pip
+          shell: ~/.anyenv/envs/pyenv/versions/{{ python3_version }}/bin/python -m pip install -U pip
           become: no
-          args:
-            executable: /usr/bin/zsh
         - name: pip install libs
-          shell: source ~/.zshrc ; pyenv shell {{ python3_version }} ; pip install -U {{ item }}
+          shell: ~/.anyenv/envs/pyenv/versions/{{ python3_version }}/bin/python -m pip install -U {{ item }}
           become: no
-          args:
-            executable: /usr/bin/zsh
           ignore_errors: True
           with_items:
             - "{{ python3_libs }}"
@@ -147,15 +143,11 @@
           when:
             - not check_python2.stat.exists
         - name: pip install
-          shell: source ~/.zshrc ; pyenv shell {{ python2_version }} ; pip install -U pip
+          shell: ~/.anyenv/envs/pyenv/versions/{{ python2_version }}/bin/python -m pip install -U pip
           become: no
-          args:
-            executable: /usr/bin/zsh
         - name: pip install libs
-          shell: source ~/.zshrc ; pyenv shell {{ python2_version }} ; pip install -U {{ item }}
+          shell: ~/.anyenv/envs/pyenv/versions/{{ python2_version }}/bin/python -m pip install -U {{ item }}
           become: no
-          args:
-            executable: /usr/bin/zsh
           ignore_errors: True
           with_items:
             - "{{ python2_libs }}"
@@ -315,3 +307,49 @@
         executable: /usr/bin/zsh
   when:
     - golang_install
+
+- block:
+    - name: check rbenv installed
+      stat:
+        path: ~/.anyenv/envs/rbenv
+      register: check_rbenv
+      become: no
+    - block:
+        - name: anyenv install rbenv
+          shell: ~/.anyenv/bin/anyenv install rbenv
+          become: no
+      when:
+        - not check_rbenv.stat.exists
+    - name: check ruby installed
+      stat:
+        path: ~/.anyenv/envs/rbenv/versions/{{ ruby_version }}
+      register: check_ruby
+      become: no
+    - block:
+        - name: install ruby
+          shell: source ~/.zshrc ; rbenv install {{ ruby_version }}
+          become: no
+          args:
+            executable: /usr/bin/zsh
+      when:
+        - not check_ruby.stat.exists
+    - name: gem update
+      shell: source ~/.zshrc ; rbenv shell {{ ruby_version }} ; gem update --system
+      become: no
+      args:
+        executable: /usr/bin/zsh
+    - name: gem install libs
+      shell: source ~/.zshrc ; rbenv shell {{ ruby_version }} ; gem install {{ item }}
+      become: no
+      args:
+        executable: /usr/bin/zsh
+      ignore_errors: True
+      with_items:
+        - "{{ ruby_libs }}"
+    - name: rbenv global
+      shell: source ~/.zshrc ; rbenv global {{ ruby_global_version }}
+      become: no
+      args:
+        executable: /usr/bin/zsh
+  when:
+    - ruby_install

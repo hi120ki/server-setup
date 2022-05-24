@@ -17,3 +17,7 @@ golang_version: "1.18.2"
 golang_global_version: "1.18.2"
 golang_libs:
   - github.com/x-motemen/ghq@latest
+ruby_install: false
+ruby_version: "2.7.6"
+ruby_global_version: "2.7.6"
+ruby_libs:
