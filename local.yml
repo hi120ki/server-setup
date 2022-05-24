@@ -4,10 +4,10 @@
     - apt
     - git
     - ssh
+    - netdata
     - fish
-    - fzf
+    - cli
+    - docker
     - anyenv
     - rust
-    - netdata
     - vm
-    - docker

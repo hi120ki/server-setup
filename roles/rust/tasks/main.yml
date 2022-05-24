@@ -47,15 +47,3 @@
     marker: "# {mark} ANSIBLE MANAGED BLOCK rust"
     content: |
       export PATH="$HOME/.cargo/bin:$PATH"
-- name: install exa
-  become: no
-  shell: ~/.cargo/bin/cargo install exa
-- name: install fd-find
-  become: no
-  shell: ~/.cargo/bin/cargo install fd-find
-- name: install ripgrep
-  become: no
-  shell: ~/.cargo/bin/cargo install ripgrep
-- name: install bat
-  become: no
-  shell: ~/.cargo/bin/cargo install bat
