@@ -88,6 +88,9 @@
       alias cl 'clear'
       alias ncf 'nano ~/.config/fish/config.fish'
 
+      alias tga 'tar -zcvf'
+      alias tgx 'tar -zxvf'
+
       alias up 'sudo apt update ; sudo apt upgrade -y'
 
       # Git
