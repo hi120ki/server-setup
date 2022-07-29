@@ -7,14 +7,14 @@ python2_version: "2.7.18"
 python2_libs:
 python_global_version: "3.8.13"
 nodejs_install: true
-nodejs_version: "16.15.0"
-nodejs_global_version: "16.15.0"
+nodejs_version: "16.16.0"
+nodejs_global_version: "16.16.0"
 nodejs_libs:
   - prettier
   - zx
 golang_install: true
-golang_version: "1.18.2"
-golang_global_version: "1.18.2"
+golang_version: "1.18.4"
+golang_global_version: "1.18.4"
 golang_libs:
   - github.com/x-motemen/ghq@latest
 ruby_install: false
