@@ -1,10 +1,14 @@
+- name: "define lsb_release"
+  shell: "lsb_release -cs"
+  ignore_errors: True
+  register: lsb_release
 - name: virtualbox apt-key add
   apt_key:
     url: http://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc
     state: present
 - name: virtualbox add-apt-repository
   apt_repository:
-    repo: deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian focal contrib
+    repo: deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian {{ lsb_release.stdout }} contrib
     state: present
 - name: vagrant apt-key add
   apt_key:
@@ -12,7 +16,7 @@
     state: present
 - name: vagrant add-apt-repository
   apt_repository:
-    repo: deb [arch=amd64] https://apt.releases.hashicorp.com focal main
+    repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ lsb_release.stdout }} main
     state: present
 - name: apt update
   apt:
