@@ -2,6 +2,7 @@
 
 ```
 sudo sed -i.bk -e 's/archive.ubuntu.com/jp.archive.ubuntu.com/g' /etc/apt/sources.list
+sudo apt update ; sudo apt install -y make
 ```
 
 ```
