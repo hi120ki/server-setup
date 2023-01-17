@@ -35,48 +35,49 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
-    - name: "define uname-s"
-      shell: "uname -s"
-      ignore_errors: True
-      register: unames
-    - name: "define uname-m"
-      shell: "uname -m"
-      ignore_errors: True
-      register: unamem
-    - name: "install docker-compose"
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-{{ unames.stdout }}-{{ unamem.stdout }}"
-        dest: /usr/local/bin/docker-compose
-        owner: root
-        group: root
-        mode: 0755
-    - name: test docker plugin directory created
-      file:
-        path: /usr/local/lib/docker/cli-plugins
-        state: directory
-        owner: root
-        group: root
-        mode: 775
-        recurse: yes
-    - name: "install docker-compose as plugin"
-      get_url:
-        url: "https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64"
-        dest: /usr/local/lib/docker/cli-plugins/docker-compose
-        owner: root
-        group: root
-        mode: 0755
     - name: "define whoami"
       shell: "whoami"
       become: no
       ignore_errors: True
       register: whoami
     - name: "usermod docker"
-      shell: "usermod -aG docker {{ whoami.stdout}}"
+      shell: "usermod -aG docker {{ whoami.stdout }}"
     - name: Restart docker service
       systemd:
         name: docker.service
         state: restarted
   when: check_docker.rc == 1
+- name: "install docker-compose"
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64"
+    dest: /usr/local/bin/docker-compose
+    owner: root
+    group: root
+    mode: 0755
+- name: test docker plugin directory created
+  file:
+    path: /usr/local/lib/docker/cli-plugins
+    state: directory
+    owner: root
+    group: root
+    mode: 775
+    recurse: yes
+- name: "install docker-compose as plugin"
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64"
+    dest: /usr/local/lib/docker/cli-plugins/docker-compose
+    owner: root
+    group: root
+    mode: 0755
+- name: install earthly
+  get_url:
+    url: "https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64"
+    dest: /usr/local/bin/earthly
+    owner: root
+    group: root
+    mode: 0755
+- name: init earthly
+  shell: "/usr/local/bin/earthly bootstrap --with-autocomplete"
 - name: install lazydocker
   unarchive:
     src: https://github.com/jesseduffield/lazydocker/releases/download/v0.20.0/lazydocker_0.20.0_Linux_x86_64.tar.gz
@@ -168,20 +169,3 @@
       alias dcrm 'docker-compose rm -f'
       alias dcps 'docker-compose ps'
       alias dcex 'docker-compose exec'
-- name: check earthly installed
-  stat:
-    path: /usr/local/bin/earthly
-  register: check_earthly
-  become: no
-- block:
-    - name: install earthly
-      get_url:
-        url: "https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64"
-        dest: /usr/local/bin/earthly
-        owner: root
-        group: root
-        mode: 0755
-    - name: init earthly
-      shell: "/usr/local/bin/earthly bootstrap --with-autocomplete"
-  when:
-    - not check_earthly.stat.exists
