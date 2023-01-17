@@ -1,20 +1,20 @@
 python_install: true
 python3_install: true
-python3_version: "3.9.15"
+python3_version: "3.9.16"
 python3_libs:
 python2_install: false
 python2_version: "2.7.18"
 python2_libs:
-python_global_version: "3.9.15"
+python_global_version: "3.9.16"
 nodejs_install: true
-nodejs_version: "18.12.1"
-nodejs_global_version: "18.12.1"
+nodejs_version: "18.13.0"
+nodejs_global_version: "18.13.0"
 nodejs_libs:
   - prettier
   - zx
 golang_install: true
-golang_version: "1.18.8"
-golang_global_version: "1.18.8"
+golang_version: "1.19.5"
+golang_global_version: "1.19.5"
 golang_libs:
   - github.com/x-motemen/ghq@latest
 ruby_install: false
