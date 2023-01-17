@@ -2,6 +2,10 @@ python_install: true
 python3_install: true
 python3_version: "3.9.16"
 python3_libs:
+  - pipdeptree
+  - black
+  - bandit
+  - requests
 python2_install: false
 python2_version: "2.7.18"
 python2_libs:
