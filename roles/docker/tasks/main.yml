@@ -50,6 +50,21 @@
         owner: root
         group: root
         mode: 0755
+    - name: test docker plugin directory created
+      file:
+        path: /usr/local/lib/docker/cli-plugins
+        state: directory
+        owner: root
+        group: root
+        mode: 775
+        recurse: yes
+    - name: "install docker-compose as plugin"
+      get_url:
+        url: "https://github.com/docker/compose/releases/download/v2.15.1/docker-compose-linux-x86_64"
+        dest: /usr/local/lib/docker/cli-plugins/docker-compose
+        owner: root
+        group: root
+        mode: 0755
     - name: "define whoami"
       shell: "whoami"
       become: no
@@ -64,7 +79,7 @@
   when: check_docker.rc == 1
 - name: install lazydocker
   unarchive:
-    src: https://github.com/jesseduffield/lazydocker/releases/download/v0.19.0/lazydocker_0.19.0_Linux_x86_64.tar.gz
+    src: https://github.com/jesseduffield/lazydocker/releases/download/v0.20.0/lazydocker_0.20.0_Linux_x86_64.tar.gz
     dest: /usr/local/bin
     extra_opts:
       - lazydocker
@@ -153,3 +168,20 @@
       alias dcrm 'docker-compose rm -f'
       alias dcps 'docker-compose ps'
       alias dcex 'docker-compose exec'
+- name: check earthly installed
+  stat:
+    path: /usr/local/bin/earthly
+  register: check_earthly
+  become: no
+- block:
+    - name: install earthly
+      get_url:
+        url: "https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64"
+        dest: /usr/local/bin/earthly
+        owner: root
+        group: root
+        mode: 0755
+    - name: init earthly
+      shell: "/usr/local/bin/earthly bootstrap --with-autocomplete"
+  when:
+    - not check_earthly.stat.exists

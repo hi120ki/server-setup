@@ -6,7 +6,7 @@
 - name: apt upgrade
   apt:
     upgrade: yes
-- name: install package
+- name: apt install package
   apt:
     pkg:
       - apt-transport-https
@@ -26,3 +26,4 @@
   shell: "snap install {{ item }}"
   with_items:
     - httpie
+    - yq

@@ -9,5 +9,4 @@
     - cli
     - docker
     - anyenv
-    - rust
     - vm
