@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
     sudo apt-add-repository --yes --update ppa:ansible/ansible
     sudo apt install -y ansible
     git clone https://github.com/hi120ki/lang-env.git
-    cd lang-env ; sudo ansible-playbook -i local, base.yml
+    ansible-playbook -c=local -i local, lang-env/base.yml
   SHELL
 
   config.vm.provision "ansible" do |ansible|
