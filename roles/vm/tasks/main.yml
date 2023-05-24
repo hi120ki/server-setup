@@ -24,7 +24,7 @@
 - name: apt install vm
   apt:
     pkg:
-      - virtualbox-6.1
+      - virtualbox-7.0
       - vagrant
 - name: vagrant plugin vagrant-disksize
   shell: vagrant plugin install vagrant-disksize
