@@ -81,8 +81,6 @@
       # Shorthand command
       # ======================================================================== #
 
-      alias vm 'cd ~/vm'
-
       alias ] 'cd ../'
       alias rmr 'rm -rf'
       alias cl 'clear'
@@ -116,7 +114,7 @@
       alias vbsa 'vboxmanage list vms'
       alias vbc 'VBoxManage list vms | grep inaccessible | cut -d "{" -f2 | cut -d "}" -f1 | xargs -L1 VBoxManage unregistervm'
 - name: install fisher
-  shell: curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
+  shell: curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
   become: no
   args:
     executable: /usr/bin/fish
