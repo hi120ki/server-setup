@@ -5,7 +5,7 @@ help: ## Print this help message
 
 .PHONY: install
 install: ## Apply ansible playbook
-	ansible-playbook -i local, base.yml --ask-become-pass
+	ansible-playbook -c=local -i local, base.yml --ask-become-pass
 
 .PHONY: ansible
 ansible: ## Install ansible
