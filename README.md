@@ -17,3 +17,11 @@ python -m pip install --user pipx ; python -m pipx ensurepath ; exec $SHELL -l
 pipx install ansible --include-deps
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc ; echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ```
+
+## Expand disk
+
+```
+$ df -h
+$ sudo lvextend -l +100%FREE /dev/ubuntu-vg/ubuntu-lv
+$ sudo resize2fs /dev/ubuntu-vg/ubuntu-lv
+```
