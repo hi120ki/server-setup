@@ -1,20 +1,20 @@
-- name: check exa installed
+- name: check eza installed
   stat:
-    path: /usr/local/bin/exa
-  register: check_exa
+    path: /usr/local/bin/eza
+  register: check_eza
   become: no
 - block:
-    - name: download exa
+    - name: download eza
       get_url:
-        url: https://github.com/ogham/exa/releases/download/v0.10.1/exa-linux-x86_64-v0.10.1.zip
-        dest: /tmp/exa.zip
-    - name: unzip exa
+        url: https://github.com/eza-community/eza/releases/download/v0.12.0/eza_x86_64-unknown-linux-gnu.tar.gz
+        dest: /tmp/eza.tar.gz
+    - name: unzip eza
       become: no
-      shell: unzip -o /tmp/exa.zip -d /tmp/exa
-    - name: copy exa
-      shell: cp /tmp/exa/bin/exa /usr/local/bin/
+      shell: tar -zxvf /tmp/eza.tar.gz -C /tmp
+    - name: copy eza
+      shell: cp /tmp/eza /usr/local/bin/
   when:
-    - not check_exa.stat.exists
+    - not check_eza.stat.exists
 
 - name: check ripgrep installed
   stat:
@@ -54,7 +54,7 @@
 - block:
     - name: download fd
       get_url:
-        url: https://github.com/sharkdp/fd/releases/download/v8.7.0/fd_8.7.0_amd64.deb
+        url: https://github.com/sharkdp/fd/releases/download/v8.7.0/fd-musl_8.7.0_amd64.deb
         dest: /tmp/fd.deb
     - name: install fd
       shell: dpkg -i /tmp/fd.deb

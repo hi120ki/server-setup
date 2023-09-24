@@ -44,15 +44,15 @@
         ls
       end
 
-      # https://github.com/ogham/exa
-      alias ls 'exa -lg --octal-permissions --time-style long-iso --icons'
-      alias l 'exa -lg --octal-permissions --time-style long-iso --icons'
-      alias la 'exa -lag --octal-permissions --time-style long-iso --icons'
+      # https://github.com/eza-community/eza
+      alias ls 'eza -lg --octal-permissions --time-style long-iso --icons'
+      alias l 'eza -lg --octal-permissions --time-style long-iso --icons'
+      alias la 'eza -lag --octal-permissions --time-style long-iso --icons'
       function lt
         if count $argv > /dev/null
-          exa -lT --git --git-ignore --icons --time-style=long-iso -L=$argv
+          eza -lT --git --git-ignore --icons --time-style=long-iso -L=$argv
         else
-          exa -lT --git --git-ignore --icons --time-style=long-iso -L=2
+          eza -lT --git --git-ignore --icons --time-style=long-iso -L=2
         end
       end
 
