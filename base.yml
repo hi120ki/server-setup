@@ -4,7 +4,7 @@
     - apt
     - git
     - ssh
-    - netdata
+    # - netdata
     - fish
     - cli
     - docker

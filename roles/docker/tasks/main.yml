@@ -64,7 +64,7 @@
     recurse: yes
 - name: "install docker-compose as plugin"
   get_url:
-    url: "https://github.com/docker/compose/releases/download/v2.20.3/docker-compose-linux-x86_64"
+    url: "https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-linux-x86_64"
     dest: /usr/local/lib/docker/cli-plugins/docker-compose
     owner: root
     group: root
@@ -78,7 +78,7 @@
     mode: 0755
 - name: install lazydocker
   unarchive:
-    src: https://github.com/jesseduffield/lazydocker/releases/download/v0.21.1/lazydocker_0.21.1_Linux_x86_64.tar.gz
+    src: https://github.com/jesseduffield/lazydocker/releases/download/v0.23.1/lazydocker_0.23.1_Linux_x86_64.tar.gz
     dest: /usr/local/bin
     extra_opts:
       - lazydocker
@@ -103,14 +103,14 @@
       alias dip='docker image prune -f'
       alias dvp='docker volume prune -f'
       # Docker Compose
-      alias dc='docker-compose'
-      alias dcb='docker-compose build'
-      alias dcu='docker-compose up'
-      alias dcup='docker-compose up -d'
-      alias dcso='docker-compose stop'
-      alias dcrm='docker-compose rm -f'
-      alias dcps='docker-compose ps'
-      alias dcex='docker-compose exec'
+      alias dc='docker compose'
+      alias dcb='docker compose build'
+      alias dcu='docker compose up'
+      alias dcup='docker compose up -d'
+      alias dcso='docker compose stop'
+      alias dcrm='docker compose rm -f'
+      alias dcps='docker compose ps'
+      alias dcex='docker compose exec'
 - name: edit ~/.zshrc
   become: no
   blockinfile:
@@ -131,14 +131,14 @@
       alias dip='docker image prune -f'
       alias dvp='docker volume prune -f'
       # Docker Compose
-      alias dc='docker-compose'
-      alias dcb='docker-compose build'
-      alias dcu='docker-compose up'
-      alias dcup='docker-compose up -d'
-      alias dcso='docker-compose stop'
-      alias dcrm='docker-compose rm -f'
-      alias dcps='docker-compose ps'
-      alias dcex='docker-compose exec'
+      alias dc='docker compose'
+      alias dcb='docker compose build'
+      alias dcu='docker compose up'
+      alias dcup='docker compose up -d'
+      alias dcso='docker compose stop'
+      alias dcrm='docker compose rm -f'
+      alias dcps='docker compose ps'
+      alias dcex='docker compose exec'
 - name: edit ~/.config/fish/config.fish
   become: no
   blockinfile:
@@ -159,11 +159,11 @@
       alias dip 'docker image prune -f'
       alias dvp 'docker volume prune -f'
       # Docker Compose
-      alias dc 'docker-compose'
-      alias dcb 'docker-compose build'
-      alias dcu 'docker-compose up'
-      alias dcup 'docker-compose up -d'
-      alias dcso 'docker-compose stop'
-      alias dcrm 'docker-compose rm -f'
-      alias dcps 'docker-compose ps'
-      alias dcex 'docker-compose exec'
+      alias dc 'docker compose'
+      alias dcb 'docker compose build'
+      alias dcu 'docker compose up'
+      alias dcup 'docker compose up -d'
+      alias dcso 'docker compose stop'
+      alias dcrm 'docker compose rm -f'
+      alias dcps 'docker compose ps'
+      alias dcex 'docker compose exec'
