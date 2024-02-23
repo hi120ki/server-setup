@@ -4,9 +4,10 @@
   register: check_eza
   become: no
 - block:
+    # https://github.com/eza-community/eza
     - name: download eza
       get_url:
-        url: https://github.com/eza-community/eza/releases/download/v0.15.2/eza_x86_64-unknown-linux-gnu.tar.gz
+        url: https://github.com/eza-community/eza/releases/download/v0.18.4/eza_x86_64-unknown-linux-gnu.tar.gz
         dest: /tmp/eza.tar.gz
     - name: unzip eza
       become: no
@@ -22,9 +23,10 @@
   register: check_ripgrep
   become: no
 - block:
+    # https://github.com/BurntSushi/ripgrep
     - name: download ripgrep
       get_url:
-        url: https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
+        url: https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0_amd64.deb
         dest: /tmp/ripgrep.deb
     - name: install ripgrep
       shell: dpkg -i /tmp/ripgrep.deb
@@ -37,6 +39,7 @@
   register: check_bat
   become: no
 - block:
+    # https://github.com/sharkdp/bat
     - name: download bat
       get_url:
         url: https://github.com/sharkdp/bat/releases/download/v0.24.0/bat_0.24.0_amd64.deb
@@ -52,26 +55,40 @@
   register: check_fd
   become: no
 - block:
+    # https://github.com/sharkdp/fd
     - name: download fd
       get_url:
-        url: https://github.com/sharkdp/fd/releases/download/v8.7.1/fd-musl_8.7.1_amd64.deb
+        url: https://github.com/sharkdp/fd/releases/download/v9.0.0/fd-musl_9.0.0_amd64.deb
         dest: /tmp/fd.deb
     - name: install fd
       shell: dpkg -i /tmp/fd.deb
   when:
     - not check_fd.stat.exists
 
-- name: check fzf cloned
+- name: apt update
+  apt:
+    update_cache: yes
+- name: apt install package
+  apt:
+    pkg:
+      - fzf
+
+- name: check devbox installed
   stat:
-    path: ~/.fzf
-  register: check_fzf
+    path: /usr/local/bin/devbox
+  register: check_devbox
   become: no
 - block:
-    - name: git clone
-      shell: git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-      become: no
-    - name: install fzf
-      shell: bash ~/.fzf/install --all
+    # https://github.com/jetpack-io/devbox
+    - name: download devbox
+      uri:
+        url: https://get.jetpack.io/devbox
+        return_content: yes
+      register: devbox
+    - name: install devbox
+      shell:
+        cmd: bash -s -- -f
+        stdin: "{{ devbox.content }}"
       become: no
   when:
-    - not check_fzf.stat.exists
+    - not check_devbox.stat.exists
