@@ -4,15 +4,39 @@
   register: check_fish
   become: no
 - block:
-    - name: ppa:fish-shell
-      ansible.builtin.apt_repository:
-        repo: ppa:fish-shell/release-3
-    - name: apt update
+    - name: Create directory for apt keyrings
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Download and install Fish GPG key
+      shell: |
+        sudo gpg --homedir /tmp --no-default-keyring --keyring /etc/apt/keyrings/fish.gpg --keyserver keyserver.ubuntu.com --recv-keys 59FDA1CE1B84B3FAD89366C027557F056DC33CA5
+
+    - name: Set permissions for Fish GPG key
+      file:
+        path: /etc/apt/keyrings/fish.gpg
+        mode: "0644"
+
+    - name: Define lsb_release
+      shell: "lsb_release -cs"
+      ignore_errors: True
+      register: lsb_release
+
+    - name: Add Fish repository to sources.list.d
+      lineinfile:
+        path: /etc/apt/sources.list.d/fish.list
+        line: "deb [arch=amd64 signed-by=/etc/apt/keyrings/fish.gpg] https://ppa.launchpadcontent.net/fish-shell/release-3/ubuntu {{ lsb_release.stdout }} main"
+        create: true
+
+    - name: Update package cache again
       apt:
         update_cache: yes
-    - name: "apt install fish"
+
+    - name: Install Fish packages
       apt:
-        pkg:
+        name:
           - fish
   when:
     - not check_fish.stat.exists
@@ -40,42 +64,56 @@
       # ======================================================================== #
 
       function cd
-        builtin cd $argv
-        ls
+          builtin cd $argv
+          ls
       end
 
       # https://github.com/eza-community/eza
-      alias ls 'eza -lg --octal-permissions --time-style long-iso --icons'
-      alias l 'eza -lg --octal-permissions --time-style long-iso --icons'
-      alias la 'eza -lag --octal-permissions --time-style long-iso --icons'
-      function lt
-        if count $argv > /dev/null
-          eza -lT --git --git-ignore --icons --time-style=long-iso -L=$argv
-        else
-          eza -lT --git --git-ignore --icons --time-style=long-iso -L=2
-        end
+      if command -sq eza
+          alias ls 'eza -lg --octal-permissions --time-style long-iso --icons'
+          alias l 'eza -lg --octal-permissions --time-style long-iso --icons'
+          alias la 'eza -lag --octal-permissions --time-style long-iso --icons'
+          function lt
+              if count $argv >/dev/null
+                  eza -lT --git --git-ignore --octal-permissions --time-style=long-iso --icons -L=$argv
+              else
+                  eza -lT --git --git-ignore --octal-permissions --time-style=long-iso --icons -L=2
+              end
+          end
+      else
+          alias l ls
+          alias la 'ls -ahl'
       end
 
       # https://github.com/sharkdp/bat
-      # bat --list-themes
-      alias c 'bat --theme="OneHalfDark"'
+      if command -sq bat
+          # bat --list-themes
+          alias c 'bat --theme="OneHalfDark"'
+      else
+          alias c cat
+      end
 
       # https://github.com/BurntSushi/ripgrep
-      alias gr 'rg'
-      alias grl 'rg -l'
+      if command -sq rg
+          alias gr rg
+          alias grl 'rg -l'
+      end
 
       # https://github.com/sharkdp/fd
-      alias f 'fd'
-      alias rmds 'fd -IH ".DS_Store" | xargs rm'
-      alias cleanc 'fd ".*.c" | xargs clang-format -style=Google -i'
-      alias cleanmd 'fd ".*.md" | xargs prettier --write'
-      alias cleanjson 'fd ".*.json" | xargs prettier --write'
-      alias cleanyml 'fd ".*.yml" | xargs prettier --write'
-      alias cleancss 'fd ".*.css" -E ".*min.css" | xargs prettier --write'
-      alias cleanjs 'fd ".*.js" -E ".*min.js" | xargs prettier --write'
-      alias cleanpy 'fd ".*.py" | xargs black'
-      alias cleansh 'fd ".*.sh" | xargs shfmt -i 2 -w'
-      alias cleanhtml 'fd ".*.html" -E ".*min.html" | xargs js-beautify -I -r -n -s 2 --no-preserve-newlines'
+      if command -sq fd
+          alias f fd
+          alias rmds 'fd -IH ".DS_Store" | xargs rm'
+          alias cleanc 'fd -e c -e h -e cpp -x clang-format -i'
+          alias cleanmd 'fd -e md -x xargs prettier --write'
+          alias cleanjson 'fd -e json -x prettier --no-config -w'
+          alias cleanyml 'fd -e yml -e yaml -x prettier --no-config -w'
+          alias cleanpy 'black .'
+          alias cleansh 'fd -e sh -x xargs shfmt -i 2 -w'
+          alias cleancss "fd -e css -E '*min.css' -x prettier --no-config -w"
+          alias cleanjs "fd -e js -E '*min.js' -x prettier --no-config -w"
+          alias cleants 'fd -e ts -e tsx | xargs prettier --write'
+          alias cleanhtml 'fd ".*.html" -E ".*min.html" | xargs js-beautify -I -r -n -s 2 --no-preserve-newlines'
+      end
 
       # ======================================================================== #
       # Shorthand command
@@ -92,27 +130,13 @@
       alias up 'sudo apt update ; sudo apt upgrade -y'
 
       # Git
-      alias g 'git'
+      alias g git
       alias gl 'git pull'
       alias ga 'git add --all'
       alias gc 'git commit -m'
-      alias gp 'git push origin (git_current_branch)'
-      alias commit 'git add . ; git commit -m "commit" ; git push origin main'
-
-      # Vagrant
-      alias v 'vagrant'
-      alias vup 'vagrant up'
-      alias vssh 'vagrant ssh'
-      alias vstat 'vagrant status'
-      alias vdest 'vagrant destroy -f'
-      alias vhalt 'vagrant halt'
-      alias vrelo 'vagrant reload'
-
-      # Vbox
-      alias vb 'vboxmanage'
-      alias vbs 'vboxmanage list runningvms'
-      alias vbsa 'vboxmanage list vms'
-      alias vbc 'VBoxManage list vms | grep inaccessible | cut -d "{" -f2 | cut -d "}" -f1 | xargs -L1 VBoxManage unregistervm'
+      alias gp 'git push -u origin main'
+      alias fix 'git add . ; git commit -m "fix" ; git push -u origin main'
+      alias commit 'git add . ; git commit -m "commit" ; git push -u origin main'
 - name: install fisher
   shell: curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
   become: no
