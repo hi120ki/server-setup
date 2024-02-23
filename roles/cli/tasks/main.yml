@@ -26,10 +26,13 @@
     # https://github.com/BurntSushi/ripgrep
     - name: download ripgrep
       get_url:
-        url: https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep_14.1.0_amd64.deb
-        dest: /tmp/ripgrep.deb
-    - name: install ripgrep
-      shell: dpkg -i /tmp/ripgrep.deb
+        url: https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
+        dest: /tmp/ripgrep.tar.gz
+    - name: unzip ripgrep
+      become: no
+      shell: tar -zxvf /tmp/ripgrep.tar.gz -C /tmp
+    - name: copy ripgrep
+      shell: cp /tmp/ripgrep-14.1.0-x86_64-unknown-linux-musl/rg /usr/local/bin/
   when:
     - not check_ripgrep.stat.exists
 
