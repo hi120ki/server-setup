@@ -2,15 +2,15 @@
   stat:
     path: ~/.ssh/id_ed25519
   register: sshkey_file
-  become: no
+  become: false
 - block:
     - name: ssh-keygen
       shell: "ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 1>/dev/null"
-      become: no
+      become: false
     - name: read id_ed25519.pub
       shell: "cat ~/.ssh/id_ed25519.pub"
       register: id_ed25519_pub
-      become: no
+      become: false
     - name: show id_ed25519.pub
       debug:
         msg: "{{ id_ed25519_pub.stdout }}"
@@ -22,7 +22,7 @@
     return_content: yes
   register: keys
 - name: add GitHub public key
-  become: no
+  become: false
   blockinfile:
     dest: ~/.ssh/authorized_keys
     create: true
@@ -30,7 +30,7 @@
     content: |
       {{ keys.content }}
 - name: edit ~/.ssh/config
-  become: no
+  become: false
   blockinfile:
     dest: ~/.ssh/config
     create: true

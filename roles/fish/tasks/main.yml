@@ -2,7 +2,7 @@
   stat:
     path: /usr/bin/fish
   register: check_fish
-  become: no
+  become: false
 - block:
     - name: Create directory for apt keyrings
       file:
@@ -41,7 +41,7 @@
   when:
     - not check_fish.stat.exists
 - name: edit ~/.config/fish/config.fish
-  become: no
+  become: false
   blockinfile:
     dest: ~/.config/fish/config.fish
     create: true
@@ -139,17 +139,17 @@
       alias commit 'git add . ; git commit -m "commit" ; git push -u origin main'
 - name: install fisher
   shell: curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
-  become: no
+  become: false
   args:
     executable: /usr/bin/fish
 - name: install fisher plugin
   shell: fisher install oh-my-fish/theme-bobthefish edc/bass jethrokuan/z
-  become: no
+  become: false
   args:
     executable: /usr/bin/fish
 - name: define whoami
   shell: whoami
-  become: no
+  become: false
   register: whoami
 - name: chsh -s /usr/bin/fish
   user:

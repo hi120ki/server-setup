@@ -2,7 +2,7 @@
   stat:
     path: /usr/local/bin/eza
   register: check_eza
-  become: no
+  become: false
 - block:
     # https://github.com/eza-community/eza
     - name: download eza
@@ -10,7 +10,7 @@
         url: https://github.com/eza-community/eza/releases/download/v0.18.4/eza_x86_64-unknown-linux-gnu.tar.gz
         dest: /tmp/eza.tar.gz
     - name: unzip eza
-      become: no
+      become: false
       shell: tar -zxvf /tmp/eza.tar.gz -C /tmp
     - name: copy eza
       shell: cp /tmp/eza /usr/local/bin/
@@ -21,7 +21,7 @@
   stat:
     path: /usr/bin/rg
   register: check_ripgrep
-  become: no
+  become: false
 - block:
     # https://github.com/BurntSushi/ripgrep
     - name: download ripgrep
@@ -29,7 +29,7 @@
         url: https://github.com/BurntSushi/ripgrep/releases/download/14.1.0/ripgrep-14.1.0-x86_64-unknown-linux-musl.tar.gz
         dest: /tmp/ripgrep.tar.gz
     - name: unzip ripgrep
-      become: no
+      become: false
       shell: tar -zxvf /tmp/ripgrep.tar.gz -C /tmp
     - name: copy ripgrep
       shell: cp /tmp/ripgrep-14.1.0-x86_64-unknown-linux-musl/rg /usr/local/bin/
@@ -40,7 +40,7 @@
   stat:
     path: /usr/bin/bat
   register: check_bat
-  become: no
+  become: false
 - block:
     # https://github.com/sharkdp/bat
     - name: download bat
@@ -56,7 +56,7 @@
   stat:
     path: /usr/bin/fd
   register: check_fd
-  become: no
+  become: false
 - block:
     # https://github.com/sharkdp/fd
     - name: download fd
@@ -80,7 +80,7 @@
   stat:
     path: /usr/local/bin/devbox
   register: check_devbox
-  become: no
+  become: false
 - block:
     # https://github.com/jetpack-io/devbox
     - name: download devbox
@@ -92,6 +92,6 @@
       shell:
         cmd: bash -s -- -f
         stdin: "{{ devbox.content }}"
-      become: no
+      become: false
   when:
     - not check_devbox.stat.exists
