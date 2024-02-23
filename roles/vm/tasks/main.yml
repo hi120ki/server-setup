@@ -2,22 +2,43 @@
   shell: "lsb_release -cs"
   ignore_errors: True
   register: lsb_release
-- name: virtualbox apt-key add
-  apt_key:
-    url: http://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc
-    state: present
-- name: virtualbox add-apt-repository
-  apt_repository:
-    repo: deb [arch=amd64] http://download.virtualbox.org/virtualbox/debian {{ lsb_release.stdout }} contrib
-    state: present
-- name: vagrant apt-key add
-  apt_key:
-    url: https://apt.releases.hashicorp.com/gpg
-    state: present
-- name: vagrant add-apt-repository
-  apt_repository:
-    repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ lsb_release.stdout }} main
-    state: present
+
+- name: Create directory for apt keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download and install virtualbox GPG key
+  shell: |
+    curl -fsSL "https://www.virtualbox.org/download/oracle_vbox_2016.asc" | gpg --dearmor --yes -o /etc/apt/keyrings/virtualbox.gpg
+
+- name: Set permissions for virtualbox GPG key
+  file:
+    path: /etc/apt/keyrings/virtualbox.gpg
+    mode: "0644"
+
+- name: Add virtualbox repository to sources.list.d
+  lineinfile:
+    path: /etc/apt/sources.list.d/virtualbox.list
+    line: "deb [arch=amd64 signed-by=/etc/apt/keyrings/virtualbox.gpg] https://download.virtualbox.org/virtualbox/debian {{ lsb_release.stdout }} contrib"
+    create: true
+
+- name: Download and install vagrant GPG key
+  shell: |
+    curl -fsSL "https://apt.releases.hashicorp.com/gpg" | gpg --dearmor --yes -o /etc/apt/keyrings/vagrant.gpg
+
+- name: Set permissions for vagrant GPG key
+  file:
+    path: /etc/apt/keyrings/vagrant.gpg
+    mode: "0644"
+
+- name: Add vagrant repository to sources.list.d
+  lineinfile:
+    path: /etc/apt/sources.list.d/vagrant.list
+    line: "deb [arch=amd64 signed-by=/etc/apt/keyrings/vagrant.gpg] https://apt.releases.hashicorp.com {{ lsb_release.stdout }} main"
+    create: true
+
 - name: apt update
   apt:
     update_cache: yes
@@ -26,6 +47,7 @@
     pkg:
       - virtualbox-7.0
       - vagrant
+
 - name: vagrant plugin vagrant-disksize
   shell: vagrant plugin install vagrant-disksize
   become: false
